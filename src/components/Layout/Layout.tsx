@@ -24,7 +24,7 @@ import StorefrontTwoToneIcon from '@mui/icons-material/StorefrontTwoTone';
 import Popover from '@mui/material/Popover';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { Link, Outlet } from "react-router-dom";
-import { useShoppingContext } from '../../context/Shopping/Shopping.provider';
+import { useStore } from '../../context/Shopping/Shopping.provider';
 import { Divider } from '@mui/material';
 import CustomButton from '../Button';
 import CartModal from '../Cart/CartModal';
@@ -98,11 +98,18 @@ const debounce = (fn: Function, delay: number) => {
     }, delay)
   }
 }
+const Header = () => {
 
-export default function AppLayout() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-  const { getCartCount, cart, onKeywordChanged } = useShoppingContext();
+  const [cart, setStore] = useStore((store) => store.cart);
+
+  const getCartCount = () => cart.reduce((accum, current) => accum += current.quantity, 0);
+  const onKeywordChanged = (nextValue: string) => {
+    setStore({
+      keyword: nextValue
+    })
+  }
 
   const searchFieldRef = useRef<any>(null)
   const searchFieldChanged = () => {
@@ -207,7 +214,7 @@ export default function AppLayout() {
   );
 
   return (
-    <div>
+    <React.Fragment>
       <AppBar
         elevation={0}
         position="sticky" style={{ background: "rgba(255,255,255,0.8)", backdropFilter: "blur(8px)", border: "none", borderBottomWidth: "thin", borderColor: "#E7EBF0", borderStyle: "solid" }}>
@@ -371,7 +378,12 @@ export default function AppLayout() {
       </AppBar>
       {renderMobileMenu}
       {renderMenu}
-      <Outlet />
-    </div>
+    </React.Fragment>
   );
+}
+export default function AppLayout() {
+  return <div>
+    <Header />
+    <Outlet />
+  </div>
 }

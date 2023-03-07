@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { Product } from '../../components/ShopCard'
 
 interface IShoppingProviderProps {
@@ -9,82 +9,74 @@ export type Cart = {
   product: Product,
   quantity: number
 }
-type ShoppingContextType = {
-  keyword: string
+type Store = {
+  cart: Cart[],
+  wishList: Product[],
+  keyword: string,
+}
+
+type ShoppingContextType = Store & {
   onKeywordChanged: (nextValue: string) => void
-  cart: Cart[] | null
-  wishList: Product[] | null
   addToCart: (product: Product) => void,
   getCartCount: () => number,
   decreaseIQty: (product: Product) => void,
   increaseIQty: (product: Product) => void
 }
 
-const ShoppingContext = createContext({} as ShoppingContextType);
+const ShoppingContext = createContext({} as ReturnType<typeof useStoreData>);
 
-export const useShoppingContext = () => {
+const useStoreData = () => {
+  const store = useRef<Store>({
+    cart: [],
+    wishList: [],
+    keyword: '',
+  });
+
+  const subscribers = useRef(new Set<() => void>());
+  const get = useCallback(() => store.current, []);
+  const set = useCallback((value: Partial<Store>) => {
+    store.current = { ...store.current, ...value };
+    subscribers.current.forEach((callback) => callback())
+  }, []);
+  const subscribe = useCallback((callback: () => void) => {
+    subscribers.current.add(callback);
+    return () => {
+      subscribers.current.delete(callback);
+    }
+  }, [])
+
+  return {
+    get,
+    set,
+    subscribe,
+  }
+}
+
+export const useStore = <SelectorOutput,>(selector: (store: Store) => SelectorOutput): [
+  SelectorOutput,
+  (value: Partial<Store>) => void
+] => {
   const context = useContext(ShoppingContext);
 
   if (!context) throw new Error(`Cannot use this hook outside Shopping Context`);
 
-  return context;
+  // const [state, setState] = useState(context.get());
+
+  // useEffect(() => {
+  //   return context.subscribe(() => setState(context.get()));
+  // }, []);
+
+  const state = React.useSyncExternalStore(context.subscribe, () => {
+    return selector(context.get());
+  });
+
+  return [state, context.set]
 }
 
 const ShoppingProvider: React.FC<IShoppingProviderProps> = ({ children }) => {
-  const [cartItems, setCartItems] = useState<Cart[]>([]);
-  const [wishListItems, setWishlistItems] = useState<Product[] | null>(null);
-  const [keyword, setKeyword] = useState("");
-
-  const addToCart = (product: Product) => {
-    const productIndex = cartItems.findIndex(cartItem => cartItem.product.id === product.id);
-    if (productIndex > -1) {
-      setCartItems(prevItems => {
-        const tempItems = [...prevItems];
-
-        tempItems[productIndex] = {
-          ...tempItems[productIndex],
-          quantity: tempItems[productIndex].quantity + 1
-        }
-
-        return tempItems;
-      })
-    } else {
-      setCartItems(prevItems => ([...prevItems, { product, quantity: 1 }]))
-    }
-  }
-
-  const getCartCount = () => cartItems.reduce((accum, current) => accum += current.quantity, 0)
-
-  const decreaseIQty = (product: Product) => {
-    setCartItems((items) => {
-      const index = items.findIndex(i => i.product.id === product.id);
-      const itemsInstance = [...items];
-      const nextValue = itemsInstance[index].quantity - 1
-      if (nextValue < 1) return itemsInstance;
-      itemsInstance[index].quantity -= 1;
-
-      return itemsInstance;
-    })
-  };
-
-  const increaseIQty = (product: Product) => {
-    setCartItems(items => {
-      const index = items.findIndex(i => i.product.id === product.id);
-      const itemsInstance = [...items];
-      itemsInstance[index].quantity += 1;
-      return itemsInstance;
-    })
-  }
-
-  const onKeywordChanged = (nextValue: string) => {
-    setKeyword(nextValue);
-  }
-
-
-  const contextValue: ShoppingContextType = { keyword, onKeywordChanged, cart: cartItems, wishList: wishListItems, addToCart, getCartCount, decreaseIQty, increaseIQty }
 
   return (
-    <ShoppingContext.Provider value={contextValue}>
+    <ShoppingContext.Provider value={useStoreData()}>
       {children}
     </ShoppingContext.Provider>
   )

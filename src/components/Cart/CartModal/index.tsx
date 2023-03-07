@@ -1,10 +1,10 @@
 import React from 'react'
-import { useShoppingContext } from '../../../context/Shopping/Shopping.provider';
+import { useStore } from '../../../context/Shopping/Shopping.provider';
 import CartModalItem from '../CartModalItem';
 
 
 const CartModal = (): JSX.Element => {
-  const { cart } = useShoppingContext();
+  const [cart] = useStore((store) => store.cart);
   return <React.Fragment>
     {cart?.map((cartItem) => <CartModalItem cart={cartItem} />)}
   </React.Fragment>
