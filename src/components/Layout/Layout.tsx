@@ -24,11 +24,11 @@ import StorefrontTwoToneIcon from '@mui/icons-material/StorefrontTwoTone';
 import Popover from '@mui/material/Popover';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { Link, Outlet } from "react-router-dom";
-import { useShoppingContext } from '../../context/Shopping/Shopping.provider';
 import { Divider } from '@mui/material';
 import CustomButton from '../Button';
 import CartModal from '../Cart/CartModal';
 import EmptyCart from '../Cart/Empty';
+import useShoppingStore from '../../stores/useShoppingStore.store';
 
 const Navigation = styled('ul')(({ theme }) => ({
   display: "flex",
@@ -102,7 +102,9 @@ const debounce = (fn: Function, delay: number) => {
 export default function AppLayout() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-  const { getCartCount, cart, onKeywordChanged } = useShoppingContext();
+  const onKeywordChanged = useShoppingStore(state => state.onKeywordChanged)
+  const cart = useShoppingStore(state => state.cart);
+  const cartCount = cart.reduce((accum, current) => accum += current.quantity, 0)
 
   const searchFieldRef = useRef<any>(null)
   const searchFieldChanged = () => {
@@ -185,7 +187,7 @@ export default function AppLayout() {
           // aria-label="show 17 new notifications"
           color="inherit"
         >
-          <Badge badgeContent={getCartCount()} color="error">
+          <Badge badgeContent={cartCount} color="error">
             <ShoppingCartOutlinedIcon color="primary" />
           </Badge>
         </IconButton>
@@ -284,7 +286,7 @@ export default function AppLayout() {
                     color="inherit"
                     {...bindTrigger(popupState)}
                   >
-                    <Badge badgeContent={getCartCount()} color="error">
+                    <Badge badgeContent={cartCount} color="error">
                       <ShoppingCartOutlinedIcon color="primary" fontSize='small' />
                     </Badge>
                   </IconButton>

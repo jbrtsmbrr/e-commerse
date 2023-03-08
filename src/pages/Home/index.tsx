@@ -1,7 +1,7 @@
 import { Grid, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import ShopCard, { Product } from '../../components/ShopCard'
-import { useShoppingContext } from '../../context/Shopping/Shopping.provider';
+import useShoppingStore from '../../stores/useShoppingStore.store';
 
 const useFetch = (url: string) => {
   const [data, setData] = useState<Product[] | null>(null);
@@ -23,7 +23,7 @@ const useFetch = (url: string) => {
 }
 
 const Home = () => {
-  const { keyword } = useShoppingContext();
+  const keyword = useShoppingStore(store => store.keyword);
   const { data: recentlyData, loading: recenylyLoading } = useFetch('https://fakestoreapi.com/products?limit=5&sort=desc');
   const { data, loading } = useFetch('https://fakestoreapi.com/products?limit=10');
 

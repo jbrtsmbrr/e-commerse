@@ -7,8 +7,7 @@ import Button from '../Button';
 import Typography from '@mui/material/Typography';
 import { Grid, Rating, Box, CardHeader, IconButton } from "@mui/material";
 import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteBorder';
-import FavoriteFilledIcon from '@mui/icons-material/Favorite';
-import { useShoppingContext } from '../../context/Shopping/Shopping.provider';
+import useShoppingStore from '../../stores/useShoppingStore.store';
 
 export type Product = {
   category: string
@@ -26,8 +25,7 @@ interface IShopCard {
 
 const ShopCard: React.FC<IShopCard> = ({ product }) => {
   const { rating, title, image, description, price } = product;
-  const { addToCart, ...rest } = useShoppingContext();
-  console.log(rest)
+  const addToCart = useShoppingStore(state => state.addToCart);
   const [priceNumber, priceDecimal] = price.toString().split(".");
   return (
     <Grid item minWidth={200} maxWidth={200}>

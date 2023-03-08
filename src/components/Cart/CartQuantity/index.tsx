@@ -1,13 +1,14 @@
 import React from 'react'
 import { Box } from "@mui/material";
-import { useShoppingContext, Cart } from '../../../context/Shopping/Shopping.provider';
+import { Cart } from '../../../context/Shopping/Shopping.provider';
+import useShoppingStore from '../../../stores/useShoppingStore.store';
 
 interface ICartQuantityProps {
   cart: Cart
 }
 
 const CartQuantity: React.FC<ICartQuantityProps> = ({ cart }) => {
-  const { increaseIQty, decreaseIQty } = useShoppingContext();
+  const [decreaseIQty, increaseIQty] = useShoppingStore(state => [state.decreaseIQty, state.increaseIQty]);
   const decreaseQuantity = () => {
     decreaseIQty(cart.product)
   }
