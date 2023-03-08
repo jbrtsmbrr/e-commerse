@@ -317,7 +317,7 @@ export default function AppLayout() {
                     <Box marginBottom="1rem" display={"flex"} alignItems="center" justifyContent="space-between">
                       <Typography variant='subtitle1' fontWeight={600}>
                         Checkout Items{" "}
-                        <Typography component="span" variant='subtitle1' color="GrayText">(3)</Typography>
+                        <Typography component="span" variant='subtitle1' color="GrayText">({ cartCount })</Typography>
                       </Typography>
                       <Typography variant='subtitle2' fontWeight={600} color="primary">View details</Typography>
                     </Box>
