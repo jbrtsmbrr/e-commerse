@@ -102,13 +102,13 @@ const debounce = (fn: Function, delay: number) => {
 export default function AppLayout() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-  const onKeywordChanged = useShoppingStore(state => state.onKeywordChanged)
+  const dispatch = useShoppingStore(state => state.dispatch)
   const cart = useShoppingStore(state => state.cart);
   const cartCount = cart.reduce((accum, current) => accum += current.quantity, 0)
 
   const searchFieldRef = useRef<any>(null)
   const searchFieldChanged = () => {
-    onKeywordChanged(searchFieldRef?.current?.value ?? "");
+    dispatch({ type: "ON_KEYWORD_CHANGED", payload: { nextValue: searchFieldRef?.current?.value ?? "" } });
   }
 
   const debouncedSearchChanged = debounce(searchFieldChanged, 200);

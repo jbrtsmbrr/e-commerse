@@ -8,12 +8,12 @@ interface ICartQuantityProps {
 }
 
 const CartQuantity: React.FC<ICartQuantityProps> = ({ cart }) => {
-  const [decreaseIQty, increaseIQty] = useShoppingStore(state => [state.decreaseIQty, state.increaseIQty]);
+  const dispatch = useShoppingStore(state => state.dispatch);
   const decreaseQuantity = () => {
-    decreaseIQty(cart.product)
+    dispatch({ type: 'DECREASE_I_QTY', payload: { product: cart.product } })
   }
   const increaseQuantity = () => {
-    increaseIQty(cart.product);
+    dispatch({ type: 'INCREASE_I_QTY', payload: { product: cart.product } })
   }
 
   return <Box alignItems="center">

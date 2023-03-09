@@ -25,7 +25,7 @@ interface IShopCard {
 
 const ShopCard: React.FC<IShopCard> = ({ product }) => {
   const { rating, title, image, description, price } = product;
-  const addToCart = useShoppingStore(state => state.addToCart);
+  const dispatch = useShoppingStore(state => state.dispatch);
   const [priceNumber, priceDecimal] = price.toString().split(".");
   return (
     <Grid item minWidth={200} maxWidth={200}>
@@ -67,7 +67,7 @@ const ShopCard: React.FC<IShopCard> = ({ product }) => {
           />
         </CardContent>
         <CardActions>
-          <Button size="small" variant='contained' disableElevation onClick={() => addToCart(product)}>Add to Cart</Button>
+          <Button size="small" variant='contained' disableElevation onClick={() => dispatch({ type: "ADD_TO_CART", payload: { product } })}>Add to Cart</Button>
         </CardActions>
       </Card>
     </Grid>
