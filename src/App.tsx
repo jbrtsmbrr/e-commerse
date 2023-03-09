@@ -14,7 +14,8 @@ function App() {
     {user ? (
       <Route path="/" element={<AppLayout />}>
         <Route path="/products" element={<Products />} />
-        <Route path="/home" element={<Home />}/>
+        <Route path="/home" element={<Home />} />
+        <Route path="/*" element={<Products />} />
       </Route>
     ) : (
       <Route path="/login" element={<Login />} />
